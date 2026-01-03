@@ -113,31 +113,28 @@ export default function Disparador() {
     setDisparando(cobranca.id);
 
     try {
-      // Preparar dados para o webhook do n8n
-      const webhookData = {
-        cobranca_id: cobranca.id,
-        cliente_nome: cobranca.clientes.nome,
-        cliente_telefone: cobranca.clientes.telefone,
-        data_vencimento: cobranca.data_vencimento,
-        dias_atraso: Math.floor(
-          (new Date().getTime() - new Date(cobranca.data_vencimento).getTime()) /
-            (1000 * 60 * 60 * 24)
-        ),
-      };
+      // Chamar Edge Function que dispara o webhook do n8n
+      const { data, error: invokeError } = await supabase.functions.invoke('disparar-webhook', {
+        body: {
+          cobranca: {
+            id: cobranca.id,
+            cliente_nome: cobranca.clientes.nome,
+            cliente_telefone: cobranca.clientes.telefone,
+            data_vencimento: cobranca.data_vencimento,
+          },
+        },
+      });
 
-      // TODO: Enviar para webhook do n8n
-      // Por enquanto, simular envio
-      console.log('Dados para webhook:', webhookData);
-      
-      // Simular delay de envio
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (invokeError) throw invokeError;
+
+      const status: StatusDisparo = data?.status === 'enviado' ? 'enviado' : 'erro';
 
       // Atualizar status de disparo
       const { error } = await supabase
         .from('cobrancas')
         .update({
           ultimo_disparo: new Date().toISOString(),
-          status_ultimo_disparo: 'enviado' as StatusDisparo,
+          status_ultimo_disparo: status,
         })
         .eq('id', cobranca.id);
 
@@ -149,16 +146,24 @@ export default function Disparador() {
             ? {
                 ...c,
                 ultimo_disparo: new Date().toISOString(),
-                status_ultimo_disparo: 'enviado' as StatusDisparo,
+                status_ultimo_disparo: status,
               }
             : c
         )
       );
 
-      toast({
-        title: 'Mensagem enviada!',
-        description: `Cobrança de ${cobranca.clientes.nome} disparada`,
-      });
+      if (status === 'enviado') {
+        toast({
+          title: 'Mensagem enviada!',
+          description: `Cobrança de ${cobranca.clientes.nome} disparada`,
+        });
+      } else {
+        toast({
+          title: 'Erro no envio',
+          description: data?.message || 'Falha ao enviar mensagem',
+          variant: 'destructive',
+        });
+      }
     } catch (error) {
       console.error('Erro ao disparar mensagem:', error);
       
