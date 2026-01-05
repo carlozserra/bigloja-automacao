@@ -45,6 +45,7 @@ export type Database = {
           created_at: string
           data_vencimento: string
           id: string
+          nome: string | null
           status: Database["public"]["Enums"]["status_cobranca"]
           status_ultimo_disparo:
             | Database["public"]["Enums"]["status_disparo"]
@@ -57,6 +58,7 @@ export type Database = {
           created_at?: string
           data_vencimento: string
           id?: string
+          nome?: string | null
           status?: Database["public"]["Enums"]["status_cobranca"]
           status_ultimo_disparo?:
             | Database["public"]["Enums"]["status_disparo"]
@@ -69,6 +71,7 @@ export type Database = {
           created_at?: string
           data_vencimento?: string
           id?: string
+          nome?: string | null
           status?: Database["public"]["Enums"]["status_cobranca"]
           status_ultimo_disparo?:
             | Database["public"]["Enums"]["status_disparo"]
