@@ -4,6 +4,7 @@ import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Calendar } from '@/components/ui/calendar';
 import {
@@ -31,6 +32,7 @@ export default function NovaCobranca() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [clienteId, setClienteId] = useState<string>('');
+  const [nomeCobranca, setNomeCobranca] = useState<string>('');
   const [dataVencimento, setDataVencimento] = useState<Date | undefined>();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -84,6 +86,7 @@ export default function NovaCobranca() {
     try {
       const { error } = await supabase.from('cobrancas').insert({
         cliente_id: clienteId,
+        nome: nomeCobranca.trim() || null,
         data_vencimento: format(dataVencimento, 'yyyy-MM-dd'),
         status: 'aberta',
         ativa: true,
@@ -134,6 +137,17 @@ export default function NovaCobranca() {
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
+          {/* Nome da Cobrança */}
+          <div className="space-y-2">
+            <Label>Nome da Cobrança (opcional)</Label>
+            <Input
+              placeholder="Ex: Mensalidade Janeiro, Parcela 1/12..."
+              value={nomeCobranca}
+              onChange={(e) => setNomeCobranca(e.target.value)}
+              maxLength={100}
+            />
+          </div>
+
           {/* Cliente Select */}
           <div className="space-y-2">
             <Label>Cliente</Label>
@@ -202,6 +216,11 @@ export default function NovaCobranca() {
             <div className="bg-muted/50 rounded-lg p-4 space-y-2">
               <p className="text-sm font-medium text-foreground">Resumo</p>
               <div className="text-sm text-muted-foreground space-y-1">
+                {nomeCobranca && (
+                  <p>
+                    <span className="font-medium">Cobrança:</span> {nomeCobranca}
+                  </p>
+                )}
                 <p>
                   <span className="font-medium">Cliente:</span> {selectedCliente.nome}
                 </p>

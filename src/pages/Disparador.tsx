@@ -69,9 +69,14 @@ export default function Disparador() {
   }, []);
 
   const filteredCobrancas = cobrancas.filter((cobranca) => {
-    const matchesSearch = cobranca.clientes?.nome
+    const searchLower = searchTerm.toLowerCase();
+    const matchesClienteName = cobranca.clientes?.nome
       ?.toLowerCase()
-      .includes(searchTerm.toLowerCase());
+      .includes(searchLower);
+    const matchesCobrancaName = cobranca.nome
+      ?.toLowerCase()
+      .includes(searchLower);
+    const matchesSearch = matchesClienteName || matchesCobrancaName;
     
     if (filterAtiva === 'ativas') return matchesSearch && cobranca.ativa;
     if (filterAtiva === 'inativas') return matchesSearch && !cobranca.ativa;
@@ -248,7 +253,7 @@ export default function Disparador() {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Buscar por nome do cliente..."
+            placeholder="Buscar por nome do cliente ou cobrança..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="pl-10"
@@ -275,6 +280,7 @@ export default function Disparador() {
         <Table>
           <TableHeader>
             <TableRow className="bg-muted/50">
+              <TableHead>Cobrança</TableHead>
               <TableHead>Cliente</TableHead>
               <TableHead>Telefone</TableHead>
               <TableHead>Vencimento</TableHead>
@@ -287,13 +293,13 @@ export default function Disparador() {
           <TableBody>
             {loading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={8} className="text-center py-8">
                   <RefreshCw className="w-6 h-6 animate-spin mx-auto text-muted-foreground" />
                 </TableCell>
               </TableRow>
             ) : filteredCobrancas.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                   Nenhuma cobrança encontrada
                 </TableCell>
               </TableRow>
@@ -301,8 +307,9 @@ export default function Disparador() {
               filteredCobrancas.map((cobranca) => (
                 <TableRow key={cobranca.id} className="animate-fade-in">
                   <TableCell className="font-medium">
-                    {cobranca.clientes?.nome}
+                    {cobranca.nome || <span className="text-muted-foreground">-</span>}
                   </TableCell>
+                  <TableCell>{cobranca.clientes?.nome}</TableCell>
                   <TableCell>{cobranca.clientes?.telefone}</TableCell>
                   <TableCell>
                     <span
