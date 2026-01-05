@@ -24,6 +24,7 @@ import { useToast } from '@/hooks/use-toast';
 import { CalendarIcon, Plus, ArrowLeft } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Database } from '@/integrations/supabase/types';
+import { useAuth } from '@/hooks/useAuth';
 
 type Cliente = Database['public']['Tables']['clientes']['Row'];
 
@@ -36,6 +37,7 @@ export default function NovaCobranca() {
   const [dataVencimento, setDataVencimento] = useState<Date | undefined>();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchClientes = async () => {
@@ -90,6 +92,7 @@ export default function NovaCobranca() {
         data_vencimento: format(dataVencimento, 'yyyy-MM-dd'),
         status: 'aberta',
         ativa: true,
+        user_id: user?.id,
       });
 
       if (error) throw error;

@@ -34,6 +34,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2, Search, RefreshCw, Users } from 'lucide-react';
 import { z } from 'zod';
 import type { Database } from '@/integrations/supabase/types';
+import { useAuth } from '@/hooks/useAuth';
 
 type Cliente = Database['public']['Tables']['clientes']['Row'];
 
@@ -54,6 +55,7 @@ export default function Clientes() {
   const [formErrors, setFormErrors] = useState<{ nome?: string; telefone?: string }>({});
   const [saving, setSaving] = useState(false);
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const fetchClientes = async () => {
     setLoading(true);
@@ -150,13 +152,14 @@ export default function Clientes() {
           description: 'Os dados foram salvos com sucesso',
         });
       } else {
-        // Create
+        // Create - include user_id
         const { data, error } = await supabase
           .from('clientes')
           .insert({
             nome: formData.nome.trim(),
             telefone: formData.telefone.trim(),
             ativo: formData.ativo,
+            user_id: user?.id,
           })
           .select()
           .single();
