@@ -21,6 +21,7 @@ export type Database = {
           id: string
           nome: string
           telefone: string
+          user_id: string | null
         }
         Insert: {
           ativo?: boolean
@@ -28,6 +29,7 @@ export type Database = {
           id?: string
           nome: string
           telefone: string
+          user_id?: string | null
         }
         Update: {
           ativo?: boolean
@@ -35,6 +37,7 @@ export type Database = {
           id?: string
           nome?: string
           telefone?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -51,6 +54,7 @@ export type Database = {
             | Database["public"]["Enums"]["status_disparo"]
             | null
           ultimo_disparo: string | null
+          user_id: string | null
         }
         Insert: {
           ativa?: boolean
@@ -64,6 +68,7 @@ export type Database = {
             | Database["public"]["Enums"]["status_disparo"]
             | null
           ultimo_disparo?: string | null
+          user_id?: string | null
         }
         Update: {
           ativa?: boolean
@@ -77,6 +82,7 @@ export type Database = {
             | Database["public"]["Enums"]["status_disparo"]
             | null
           ultimo_disparo?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
