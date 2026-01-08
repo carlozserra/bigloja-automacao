@@ -37,17 +37,19 @@ serve(async (req) => {
       global: { headers: { Authorization: authHeader } }
     });
 
-    // Verify user authentication
-    const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-    if (authError || !user) {
-      console.error('Invalid token:', authError?.message);
+    // Verify JWT using getClaims (compatible with signing-keys)
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
+    if (claimsError || !claimsData?.claims) {
+      console.error('Invalid token:', claimsError?.message);
       return new Response(
         JSON.stringify({ error: 'Invalid token' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    console.log('User authenticated:', user.id);
+    const userId = claimsData.claims.sub;
+    console.log('User authenticated:', userId);
 
     // Get webhook URL
     const webhookUrl = Deno.env.get('N8N_WEBHOOK_URL');
