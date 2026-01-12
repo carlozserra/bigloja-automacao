@@ -169,8 +169,27 @@ export default function Disparador() {
           variant: 'destructive',
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Erro ao disparar mensagem:', error);
+      
+      // Extrair mensagem de erro do backend
+      let errorMessage = 'Não foi possível enviar a mensagem';
+      
+      // Tentar extrair a mensagem do contexto de erro do invoke
+      if (error?.context?.body) {
+        try {
+          const errorBody = typeof error.context.body === 'string' 
+            ? JSON.parse(error.context.body) 
+            : error.context.body;
+          if (errorBody?.message) {
+            errorMessage = errorBody.message;
+          }
+        } catch {
+          // Se não conseguir fazer parse, usa a mensagem padrão
+        }
+      } else if (error?.message) {
+        errorMessage = error.message;
+      }
       
       // Atualizar status de erro
       await supabase
@@ -182,8 +201,8 @@ export default function Disparador() {
         .eq('id', cobranca.id);
 
       toast({
-        title: 'Erro',
-        description: 'Não foi possível enviar a mensagem',
+        title: 'Erro no envio',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
