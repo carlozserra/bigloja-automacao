@@ -13,15 +13,16 @@ import {
   PopoverTrigger,
 } from '@/components/ui/popover';
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { CalendarIcon, Plus, ArrowLeft } from 'lucide-react';
+import { CalendarIcon, Plus, ArrowLeft, Check, ChevronsUpDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Database } from '@/integrations/supabase/types';
 import { useAuth } from '@/hooks/useAuth';
@@ -35,6 +36,7 @@ export default function NovaCobranca() {
   const [clienteId, setClienteId] = useState<string>('');
   const [nomeCobranca, setNomeCobranca] = useState<string>('');
   const [dataVencimento, setDataVencimento] = useState<Date | undefined>();
+  const [openClienteSearch, setOpenClienteSearch] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -151,27 +153,55 @@ export default function NovaCobranca() {
             />
           </div>
 
-          {/* Cliente Select */}
+          {/* Cliente Select with Search */}
           <div className="space-y-2">
             <Label>Cliente</Label>
-            <Select value={clienteId} onValueChange={setClienteId} disabled={loading}>
-              <SelectTrigger className="w-full">
-                <SelectValue placeholder={loading ? 'Carregando...' : 'Selecione um cliente'} />
-              </SelectTrigger>
-              <SelectContent>
-                {clientes.length === 0 ? (
-                  <SelectItem value="none" disabled>
-                    Nenhum cliente ativo encontrado
-                  </SelectItem>
-                ) : (
-                  clientes.map((cliente) => (
-                    <SelectItem key={cliente.id} value={cliente.id}>
-                      {cliente.nome} - {cliente.telefone}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+            <Popover open={openClienteSearch} onOpenChange={setOpenClienteSearch}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={openClienteSearch}
+                  className="w-full justify-between font-normal"
+                  disabled={loading}
+                >
+                  {clienteId && selectedCliente
+                    ? `${selectedCliente.nome} - ${selectedCliente.telefone}`
+                    : loading
+                    ? 'Carregando...'
+                    : 'Selecione um cliente'}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Buscar por nome ou telefone..." />
+                  <CommandList>
+                    <CommandEmpty>Nenhum cliente encontrado.</CommandEmpty>
+                    <CommandGroup>
+                      {clientes.map((cliente) => (
+                        <CommandItem
+                          key={cliente.id}
+                          value={`${cliente.nome} ${cliente.telefone}`}
+                          onSelect={() => {
+                            setClienteId(cliente.id);
+                            setOpenClienteSearch(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              'mr-2 h-4 w-4',
+                              clienteId === cliente.id ? 'opacity-100' : 'opacity-0'
+                            )}
+                          />
+                          {cliente.nome} - {cliente.telefone}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             {clientes.length === 0 && !loading && (
               <Button
                 variant="link"
