@@ -67,8 +67,8 @@ export default function Clientes() {
 
       if (error) throw error;
       setClientes(data || []);
-    } catch (error) {
-      console.error('Erro ao buscar clientes:', error);
+    } catch {
+      // Error logged silently for security
       toast({
         title: 'Erro',
         description: 'Não foi possível carregar os clientes',
@@ -175,8 +175,8 @@ export default function Clientes() {
       }
 
       setDialogOpen(false);
-    } catch (error) {
-      console.error('Erro ao salvar cliente:', error);
+    } catch {
+      // Error logged silently for security
       toast({
         title: 'Erro',
         description: 'Não foi possível salvar o cliente',
@@ -204,8 +204,8 @@ export default function Clientes() {
         title: 'Cliente removido',
         description: 'O cliente foi excluído com sucesso',
       });
-    } catch (error) {
-      console.error('Erro ao remover cliente:', error);
+    } catch {
+      // Error logged silently for security
       toast({
         title: 'Erro',
         description: 'Não foi possível remover o cliente. Verifique se não há cobranças vinculadas.',

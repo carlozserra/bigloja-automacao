@@ -22,7 +22,7 @@ serve(async (req) => {
     // Validate Authorization header
     const authHeader = req.headers.get('Authorization');
     if (!authHeader) {
-      console.error('Missing authorization header');
+      console.error('[AUTH] Missing authorization header');
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -41,7 +41,7 @@ serve(async (req) => {
     const token = authHeader.replace('Bearer ', '');
     const { data: claimsData, error: claimsError } = await supabaseClient.auth.getClaims(token);
     if (claimsError || !claimsData?.claims) {
-      console.error('Invalid token:', claimsError?.message);
+      console.error('[AUTH] Token validation failed');
       return new Response(
         JSON.stringify({ error: 'Invalid token' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -49,14 +49,14 @@ serve(async (req) => {
     }
 
     const userId = claimsData.claims.sub;
-    console.log('User authenticated:', userId);
+    console.log('[WEBHOOK] Request initiated', { user_id: userId });
 
     // Get webhook URL
     const webhookUrl = Deno.env.get('N8N_WEBHOOK_URL');
     if (!webhookUrl) {
-      console.error('N8N_WEBHOOK_URL não configurada');
+      console.error('[CONFIG] Webhook URL not configured');
       return new Response(
-        JSON.stringify({ error: 'Webhook URL não configurada' }),
+        JSON.stringify({ error: 'Serviço temporariamente indisponível' }),
         { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
@@ -66,7 +66,7 @@ serve(async (req) => {
     const cobrancaId = body?.cobranca?.id;
 
     if (!cobrancaId || !isValidUUID(cobrancaId)) {
-      console.error('Invalid cobranca ID:', cobrancaId);
+      console.error('[VALIDATION] Invalid cobranca ID format');
       return new Response(
         JSON.stringify({ error: 'Invalid cobranca ID' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -81,7 +81,7 @@ serve(async (req) => {
       .single();
 
     if (fetchError || !cobranca) {
-      console.error('Cobranca not found or access denied:', fetchError?.message);
+      console.error('[DB] Cobranca not found or access denied');
       return new Response(
         JSON.stringify({ error: 'Cobrança não encontrada ou acesso negado' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -93,7 +93,7 @@ serve(async (req) => {
     const cliente = Array.isArray(clienteData) ? clienteData[0] : clienteData;
     
     if (!cliente || typeof cliente !== 'object' || !('nome' in cliente) || !('telefone' in cliente)) {
-      console.error('Cliente not found for cobranca:', cobrancaId);
+      console.error('[DB] Cliente not found for cobranca');
       return new Response(
         JSON.stringify({ error: 'Cliente não encontrado' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
@@ -109,7 +109,7 @@ serve(async (req) => {
       cobranca_nome: cobranca.nome || null,
     };
 
-    console.log('Sending to webhook:', JSON.stringify(webhookData));
+    console.log('[WEBHOOK] Sending request', { cobranca_id: cobranca.id });
 
     const response = await fetch(webhookUrl, {
       method: 'POST',
@@ -120,7 +120,7 @@ serve(async (req) => {
     });
 
     const responseText = await response.text();
-    console.log('Webhook response:', response.status, responseText);
+    console.log('[WEBHOOK] Response received', { status: response.status, cobranca_id: cobranca.id });
 
     if (!response.ok) {
       return new Response(
@@ -138,10 +138,9 @@ serve(async (req) => {
     );
 
   } catch (error) {
-    console.error('Erro ao disparar webhook:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Erro desconhecido';
+    console.error('[ERROR] Webhook execution failed');
     return new Response(
-      JSON.stringify({ status: 'erro', message: errorMessage }),
+      JSON.stringify({ status: 'erro', message: 'Falha ao processar requisição' }),
       { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

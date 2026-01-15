@@ -52,8 +52,8 @@ export default function Disparador() {
 
       if (error) throw error;
       setCobrancas(data || []);
-    } catch (error) {
-      console.error('Erro ao buscar cobranças:', error);
+    } catch {
+      // Error logged silently for security
       toast({
         title: 'Erro',
         description: 'Não foi possível carregar as cobranças',
@@ -102,8 +102,8 @@ export default function Disparador() {
         title: 'Atualizado',
         description: `Cobrança ${!cobranca.ativa ? 'ativada' : 'desativada'}`,
       });
-    } catch (error) {
-      console.error('Erro ao atualizar cobrança:', error);
+    } catch {
+      // Error logged silently for security
       toast({
         title: 'Erro',
         description: 'Não foi possível atualizar a cobrança',
@@ -170,7 +170,7 @@ export default function Disparador() {
         });
       }
     } catch (error: any) {
-      console.error('Erro ao disparar mensagem:', error);
+      // Error logged silently for security
       
       // Extrair mensagem de erro do backend
       let errorMessage = 'Não foi possível enviar a mensagem';
@@ -225,8 +225,8 @@ export default function Disparador() {
         title: 'Cobrança encerrada',
         description: 'O cliente realizou o pagamento',
       });
-    } catch (error) {
-      console.error('Erro ao encerrar cobrança:', error);
+    } catch {
+      // Error logged silently for security
       toast({
         title: 'Erro',
         description: 'Não foi possível encerrar a cobrança',
