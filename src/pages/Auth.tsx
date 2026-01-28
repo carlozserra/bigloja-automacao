@@ -33,6 +33,12 @@ export default function Auth() {
     e.preventDefault();
     setIsLoading(true);
 
+    console.log("🔐 LOGIN SUBMIT");
+    console.log("EMAIL:", email);
+    console.log("PASSWORD:", password);
+    console.log("IS LOGIN?", isLogin);
+
+
     // Validate inputs
     const validation = authSchema.safeParse({ email, password });
     if (!validation.success) {
