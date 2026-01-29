@@ -49,9 +49,19 @@ const AppRoutes = () => {
 };
 
 const App = () => (
-  <div style={{ padding: 40 }}>
-    <h1>🚨 TESTE BUILD NOVO</h1>
-  </div>
-)
+  <QueryClientProvider client={queryClient}>
+    <TooltipProvider>
+      <Toaster />
+      <Sonner />
+      <BrowserRouter>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </BrowserRouter>
+    </TooltipProvider>
+  </QueryClientProvider>
+);
+
+export default App;
 
 export default App
