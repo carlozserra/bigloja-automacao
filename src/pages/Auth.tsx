@@ -1,9 +1,4 @@
-console.log(
-  'SUPABASE ENV CHECK 👉',
-  import.meta.env.VITE_SUPABASE_URL,
-  import.meta.env.VITE_SUPABASE_ANON_KEY
-);
-
+import { supabase } from '@/integrations/supabase/client'
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -60,6 +55,8 @@ export default function Auth() {
 
     try {
       if (isLogin) {
+        const { data: sessionData } = await supabase.auth.getSession()
+        console.log('SESSION CHECK 👉', sessionData)
         const { error } = await signIn(email, password);
         if (error) {
           let message = 'Erro ao fazer login';
