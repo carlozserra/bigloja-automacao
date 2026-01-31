@@ -1,4 +1,3 @@
-import { supabase } from '@/integrations/supabase/client'
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -34,12 +33,6 @@ export default function Auth() {
     e.preventDefault();
     setIsLoading(true);
 
-    console.log("🔐 LOGIN SUBMIT");
-    console.log("EMAIL:", email);
-    console.log("PASSWORD:", password);
-    console.log("IS LOGIN?", isLogin);
-
-
     // Validate inputs
     const validation = authSchema.safeParse({ email, password });
     if (!validation.success) {
@@ -55,8 +48,6 @@ export default function Auth() {
 
     try {
       if (isLogin) {
-        const { data: sessionData } = await supabase.auth.getSession()
-        console.log('SESSION CHECK 👉', sessionData)
         const { error } = await signIn(email, password);
         if (error) {
           let message = 'Erro ao fazer login';
