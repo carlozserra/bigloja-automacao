@@ -159,7 +159,6 @@ export default function Clientes() {
             nome: formData.nome.trim(),
             telefone: formData.telefone.trim(),
             ativo: formData.ativo,
-            user_id: user?.id,
           })
           .select()
           .single();
