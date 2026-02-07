@@ -94,7 +94,6 @@ export default function NovaCobranca() {
         data_vencimento: format(dataVencimento, 'yyyy-MM-dd'),
         status: 'aberta',
         ativa: true,
-        user_id: user?.id,
       });
 
       if (error) throw error;
