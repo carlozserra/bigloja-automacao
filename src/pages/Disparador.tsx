@@ -195,7 +195,6 @@ export default function Disparador() {
       await supabase
         .from('cobrancas')
         .update({
-          ultimo_disparo: new Date().toISOString(),
           status_ultimo_disparo: 'erro' as StatusDisparo,
         })
         .eq('id', cobranca.id);

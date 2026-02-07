@@ -117,6 +117,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(webhookData),
+
     });
 
     const responseText = await response.text();
@@ -128,7 +129,7 @@ serve(async (req) => {
           status: 'erro',
           message: `Erro no webhook: ${response.status}` 
         }),
-        { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 502, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
@@ -141,7 +142,7 @@ serve(async (req) => {
     console.error('[ERROR] Webhook execution failed');
     return new Response(
       JSON.stringify({ status: 'erro', message: 'Falha ao processar requisição' }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
