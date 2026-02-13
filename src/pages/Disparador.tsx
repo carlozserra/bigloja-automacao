@@ -213,7 +213,7 @@ export default function Disparador() {
     try {
       const { error } = await supabase
         .from('cobrancas')
-        .update({ status: 'encerrada' })
+        .delete()
         .eq('id', cobranca.id);
 
       if (error) throw error;
@@ -221,14 +221,14 @@ export default function Disparador() {
       setCobrancas((prev) => prev.filter((c) => c.id !== cobranca.id));
 
       toast({
-        title: 'Cobrança encerrada',
-        description: 'O cliente realizou o pagamento',
+        title: 'Cobrança deletada',
+        description: 'O cliente realizou o pagamento e a cobrança foi removida',
       });
     } catch {
       // Error logged silently for security
       toast({
-        title: 'Erro',
-        description: 'Não foi possível encerrar a cobrança',
+        title: 'Erro ao deletar',
+        description: 'Não foi possível remover a cobrança do banco de dados',
         variant: 'destructive',
       });
     }
