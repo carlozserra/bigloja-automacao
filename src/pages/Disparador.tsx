@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -252,8 +252,14 @@ export default function Disparador() {
     );
   };
 
+  // Helper function to parse dates correctly from ISO format (YYYY-MM-DD)
+  // Avoids UTC interpretation issues
+  const parseISODate = (dateString: string): Date => {
+    return parse(dateString, 'yyyy-MM-dd', new Date());
+  };
+
   const isAtrasada = (dataVencimento: string) => {
-    return new Date(dataVencimento) < new Date();
+    return parseISODate(dataVencimento) < new Date();
   };
 
   return (
@@ -337,7 +343,7 @@ export default function Disparador() {
                           : ''
                       }
                     >
-                      {format(new Date(cobranca.data_vencimento), "dd/MM/yyyy", {
+                      {format(parseISODate(cobranca.data_vencimento), "dd/MM/yyyy", {
                         locale: ptBR,
                       })}
                     </span>
