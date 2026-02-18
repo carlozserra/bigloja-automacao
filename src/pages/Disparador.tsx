@@ -68,6 +68,40 @@ export default function Disparador() {
     fetchCobrancas();
   }, []);
 
+  // Setup Realtime listener for cobrancas updates
+  useEffect(() => {
+    const channel = supabase
+      .channel('realtime:cobrancas')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'cobrancas',
+        },
+        (payload) => {
+          const updatedCobranca = payload.new as Cobranca;
+          
+          setCobrancas((prevCobrancas) =>
+            prevCobrancas.map((cobranca) =>
+              cobranca.id === updatedCobranca.id
+                ? {
+                    ...cobranca,
+                    ...updatedCobranca,
+                  }
+                : cobranca
+            )
+          );
+        }
+      )
+      .subscribe();
+
+    // Cleanup: unsubscribe from channel when component unmounts
+    return () => {
+      channel.unsubscribe();
+    };
+  }, []);
+
   const filteredCobrancas = cobrancas.filter((cobranca) => {
     const searchLower = searchTerm.toLowerCase();
     const matchesClienteName = cobranca.clientes?.nome
