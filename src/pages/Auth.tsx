@@ -15,11 +15,10 @@ const authSchema = z.object({
 });
 
 export default function Auth() {
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -47,44 +46,23 @@ export default function Auth() {
     }
 
     try {
-      if (isLogin) {
-        const { error } = await signIn(email, password);
-        if (error) {
-          let message = 'Erro ao fazer login';
-          if (error.message.includes('Invalid login credentials')) {
-            message = 'Email ou senha incorretos';
-          }
-          toast({
-            title: 'Erro',
-            description: message,
-            variant: 'destructive',
-          });
-        } else {
-          toast({
-            title: 'Bem-vindo!',
-            description: 'Login realizado com sucesso',
-          });
-          navigate('/');
+      const { error } = await signIn(email, password);
+      if (error) {
+        let message = 'Erro ao fazer login';
+        if (error.message.includes('Invalid login credentials')) {
+          message = 'Email ou senha incorretos';
         }
+        toast({
+          title: 'Erro',
+          description: message,
+          variant: 'destructive',
+        });
       } else {
-        const { error } = await signUp(email, password);
-        if (error) {
-          let message = 'Erro ao criar conta';
-          if (error.message.includes('already registered')) {
-            message = 'Este email já está cadastrado';
-          }
-          toast({
-            title: 'Erro',
-            description: message,
-            variant: 'destructive',
-          });
-        } else {
-          toast({
-            title: 'Conta criada!',
-            description: 'Você já pode fazer login',
-          });
-          setIsLogin(true);
-        }
+        toast({
+          title: 'Bem-vindo!',
+          description: 'Login realizado com sucesso',
+        });
+        navigate('/');
       }
     } catch {
       toast({
@@ -112,12 +90,10 @@ export default function Auth() {
         <Card className="border-border shadow-lg">
           <CardHeader className="space-y-1">
             <CardTitle className="text-2xl font-bold text-center">
-              {isLogin ? 'Entrar' : 'Criar Conta'}
+              Entrar
             </CardTitle>
             <CardDescription className="text-center">
-              {isLogin
-                ? 'Entre com suas credenciais para acessar o sistema'
-                : 'Preencha os dados para criar sua conta'}
+              Entre com suas credenciais para acessar o sistema
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -163,22 +139,12 @@ export default function Auth() {
                   'Carregando...'
                 ) : (
                   <>
-                    {isLogin ? 'Entrar' : 'Criar Conta'}
+                    Entrar
                     <ArrowRight className="h-4 w-4 ml-2" />
                   </>
                 )}
               </Button>
             </form>
-
-            <div className="mt-6 text-center">
-              <button
-                type="button"
-                onClick={() => setIsLogin(!isLogin)}
-                className="text-sm text-primary hover:underline"
-              >
-                {isLogin ? 'Não tem conta? Criar agora' : 'Já tem conta? Fazer login'}
-              </button>
-            </div>
           </CardContent>
         </Card>
       </div>
